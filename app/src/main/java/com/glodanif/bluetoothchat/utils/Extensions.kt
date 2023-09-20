@@ -3,6 +3,7 @@ package com.glodanif.bluetoothchat.utils
 import android.app.Activity
 import android.app.NotificationManager
 import android.bluetooth.BluetoothClass
+import android.bluetooth.BluetoothManager
 import android.content.ContentUris
 import android.content.Context
 import android.content.res.Resources
@@ -37,9 +38,12 @@ fun Context.getDisplayMetrics(): DisplayMetrics {
 
 fun Context.getNotificationManager() =
     this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+fun Context.getBluetoothManager() =
+    this.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
 
 fun Context.getLayoutInflater() =
     this.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+
 
 fun Int.toPx() = (this * Resources.getSystem().displayMetrics.density).toInt()
 

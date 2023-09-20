@@ -11,30 +11,29 @@ import com.glodanif.bluetoothchat.ui.widget.ShortcutManager
 import com.glodanif.bluetoothchat.ui.widget.ShortcutManagerImpl
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val bluetoothConnectionModule = module {
-    single { BluetoothConnectorImpl(androidContext()) as BluetoothConnector }
-    factory { BluetoothScannerImpl(androidContext()) as BluetoothScanner }
+    single { BluetoothConnectorImpl(androidContext()) } bind BluetoothConnector::class
+    factory { BluetoothScannerImpl(androidContext()) } bind BluetoothScanner::class
 }
 
 val databaseModule = module {
     single { Database.getInstance(androidContext()) }
-    single { MessagesStorageImpl(get()) as MessagesStorage }
-    single { ConversationsStorageImpl(get()) as ConversationsStorage }
+    single { MessagesStorageImpl(get()) } bind MessagesStorage::class
+    single { ConversationsStorageImpl(get()) } bind ConversationsStorage::class
 }
 
 val localStorageModule = module {
-    single { FileManagerImpl(androidContext()) as FileManager }
-    single { UserPreferencesImpl(androidContext()) as UserPreferences }
-    single { ProfileManagerImpl(androidContext()) as ProfileManager }
+    single { FileManagerImpl(androidContext()) } bind FileManager::class
+    single { UserPreferencesImpl(androidContext()) } bind UserPreferences::class
+    single { ProfileManagerImpl(androidContext()) } bind ProfileManager::class
 }
 
-const val localeScope = "locale_scope"
-
 val viewModule = module {
-    single { NotificationViewImpl(androidContext()) as NotificationView }
-    single { ShortcutManagerImpl(androidContext()) as ShortcutManager }
+    single { NotificationViewImpl(androidContext()) } bind NotificationView::class
+    single { ShortcutManagerImpl(androidContext()) } bind ShortcutManager::class
     single { ContactConverter() }
     single { ConversationConverter(androidContext()) }
     single { ChatMessageConverter(androidContext()) }

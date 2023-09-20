@@ -69,10 +69,13 @@ class ConversationsActivity : SkeletonActivity(), ConversationsView {
                 when (it) {
                     SettingsPopup.Option.PROFILE ->
                         ProfileActivity.start(this@ConversationsActivity, editMode = true)
+
                     SettingsPopup.Option.IMAGES ->
                         ReceivedImagesActivity.start(this@ConversationsActivity, address = null)
+
                     SettingsPopup.Option.SETTINGS ->
                         SettingsActivity.start(this@ConversationsActivity)
+
                     SettingsPopup.Option.ABOUT ->
                         AboutActivity.start(this@ConversationsActivity)
                 }
@@ -112,14 +115,16 @@ class ConversationsActivity : SkeletonActivity(), ConversationsView {
         }
 
         storagePermissionDialog = AlertDialog.Builder(this)
-                .setView(R.layout.dialog_storage_permission)
-                .setPositiveButton(R.string.general__ok) { _, _ ->
-                    ActivityCompat.requestPermissions(this,
-                            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_STORAGE_PERMISSION)
-                }
-                .setNegativeButton(R.string.general__exit) { _, _ -> finish() }
-                .setCancelable(false)
-                .create()
+            .setView(R.layout.dialog_storage_permission)
+            .setPositiveButton(R.string.general__ok) { _, _ ->
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_STORAGE_PERMISSION
+                )
+            }
+            .setNegativeButton(R.string.general__exit) { _, _ -> finish() }
+            .setCancelable(false)
+            .create()
 
         shortcutsManager.addSearchShortcut()
 
@@ -140,52 +145,65 @@ class ConversationsActivity : SkeletonActivity(), ConversationsView {
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle(getString(R.string.conversations__options))
-                .setItems(labels.toTypedArray()) { _, which ->
-                    when (which) {
-                        0 -> {
-                            confirmRemoval(conversation.address)
-                        }
-                        1 -> {
-                            if (isCurrent) {
-                                presenter.disconnect()
-                            } else {
-                                requestPinShortcut(conversation)
-                            }
-                        }
-                        2 -> {
+            .setItems(labels.toTypedArray()) { _, which ->
+                when (which) {
+                    0 -> {
+                        confirmRemoval(conversation.address)
+                    }
+
+                    1 -> {
+                        if (isCurrent) {
+                            presenter.disconnect()
+                        } else {
                             requestPinShortcut(conversation)
                         }
                     }
+
+                    2 -> {
+                        requestPinShortcut(conversation)
+                    }
                 }
+            }
         builder.create().show()
     }
 
     private fun requestPinShortcut(conversation: ConversationViewModel) {
         shortcutsManager.requestPinConversationShortcut(
-                conversation.address, conversation.displayName, conversation.color)
+            conversation.address, conversation.displayName, conversation.color
+        )
     }
 
     private fun confirmRemoval(address: String) {
 
         AlertDialog.Builder(this)
-                .setMessage(getString(R.string.conversations__removal_confirmation))
-                .setPositiveButton(getString(R.string.general__yes)) { _, _ -> presenter.removeConversation(address) }
-                .setNegativeButton(getString(R.string.general__no), null)
-                .show()
+            .setMessage(getString(R.string.conversations__removal_confirmation))
+            .setPositiveButton(getString(R.string.general__yes)) { _, _ ->
+                presenter.removeConversation(
+                    address
+                )
+            }
+            .setNegativeButton(getString(R.string.general__no), null)
+            .show()
     }
 
     override fun onStart() {
         super.onStart()
 
-        if (ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && !storagePermissionDialog.isShowing) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED && !storagePermissionDialog.isShowing
+        ) {
             storagePermissionDialog.show()
         }
     }
 
     override fun dismissConversationNotification() {
         getNotificationManager()
-                .cancel(NotificationView.NOTIFICATION_TAG_CONNECTION, NotificationView.NOTIFICATION_ID_CONNECTION)
+            .cancel(
+                NotificationView.NOTIFICATION_TAG_CONNECTION,
+                NotificationView.NOTIFICATION_ID_CONNECTION
+            )
     }
 
     override fun hideActions() {
@@ -210,13 +228,13 @@ class ConversationsActivity : SkeletonActivity(), ConversationsView {
 
     override fun showServiceDestroyed() = doIfStarted {
         AlertDialog.Builder(this)
-                .setMessage(getString(R.string.general__service_lost))
-                .setPositiveButton(getString(R.string.general__restart)) { _, _ ->
-                    presenter.prepareConnection()
-                    presenter.loadUserProfile()
-                }
-                .setCancelable(false)
-                .show()
+            .setMessage(getString(R.string.general__service_lost))
+            .setPositiveButton(getString(R.string.general__restart)) { _, _ ->
+                presenter.prepareConnection()
+                presenter.loadUserProfile()
+            }
+            .setCancelable(false)
+            .show()
     }
 
     override fun refreshList(connected: String?) {
@@ -225,19 +243,31 @@ class ConversationsActivity : SkeletonActivity(), ConversationsView {
     }
 
     override fun notifyAboutConnectedDevice(conversation: ConversationViewModel) {
-        actions.setActionsAndShow(getString(R.string.conversations__connection_request, conversation.displayName, conversation.deviceName),
-                ActionView.Action(getString(R.string.general__start_chat)) { presenter.startChat(conversation) },
-                ActionView.Action(getString(R.string.general__disconnect)) { presenter.rejectConnection() }
+        actions.setActionsAndShow(getString(
+            R.string.conversations__connection_request,
+            conversation.displayName,
+            conversation.deviceName
+        ),
+            ActionView.Action(getString(R.string.general__start_chat)) {
+                presenter.startChat(
+                    conversation
+                )
+            },
+            ActionView.Action(getString(R.string.general__disconnect)) { presenter.rejectConnection() }
         )
     }
 
     override fun showRejectedNotification(conversation: ConversationViewModel) = doIfStarted {
         AlertDialog.Builder(this)
-                .setMessage(getString(R.string.conversations__connection_rejected,
-                        conversation.displayName, conversation.deviceName))
-                .setPositiveButton(getString(R.string.general__ok), null)
-                .setCancelable(false)
-                .show()
+            .setMessage(
+                getString(
+                    R.string.conversations__connection_rejected,
+                    conversation.displayName, conversation.deviceName
+                )
+            )
+            .setPositiveButton(getString(R.string.general__ok), null)
+            .setCancelable(false)
+            .show()
     }
 
     override fun redirectToChat(conversation: ConversationViewModel) {
@@ -259,7 +289,7 @@ class ConversationsActivity : SkeletonActivity(), ConversationsView {
 
         if (requestCode == REQUEST_SCAN && resultCode == Activity.RESULT_OK) {
             val device = data
-                    ?.getParcelableExtra<BluetoothDevice>(ScanActivity.EXTRA_BLUETOOTH_DEVICE)
+                ?.getParcelableExtra<BluetoothDevice>(ScanActivity.EXTRA_BLUETOOTH_DEVICE)
 
             if (device != null) {
                 ChatActivity.start(this, device.address)
@@ -267,27 +297,32 @@ class ConversationsActivity : SkeletonActivity(), ConversationsView {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == REQUEST_STORAGE_PERMISSION && grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED && !storagePermissionDialog.isShowing) {
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !shouldShowRequestPermissionRationale(permissions[0])) {
+            if (!shouldShowRequestPermissionRationale(permissions[0])) {
 
                 AlertDialog.Builder(this)
-                        .setMessage(Html.fromHtml(getString(R.string.conversations__storage_permission)))
-                        .setPositiveButton(getString(R.string.conversations__permissions_settings)) { _, _ ->
+                    .setMessage(Html.fromHtml(getString(R.string.conversations__storage_permission)))
+                    .setPositiveButton(getString(R.string.conversations__permissions_settings)) { _, _ ->
 
-                            val intent = Intent()
-                                    .setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                                    .addCategory(Intent.CATEGORY_DEFAULT)
-                                    .setData(Uri.parse("package:$packageName"))
-                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                    .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-                                    .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-                            startActivity(intent)
-                        }
-                        .setCancelable(false)
-                        .show()
+                        val intent = Intent()
+                            .setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            .addCategory(Intent.CATEGORY_DEFAULT)
+                            .setData(Uri.parse("package:$packageName"))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                            .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+                        startActivity(intent)
+                    }
+                    .setCancelable(false)
+                    .show()
             } else {
                 storagePermissionDialog.show()
             }

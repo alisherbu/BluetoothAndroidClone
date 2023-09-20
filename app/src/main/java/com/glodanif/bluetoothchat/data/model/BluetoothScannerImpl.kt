@@ -8,7 +8,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Handler
+import android.os.Looper
 import com.glodanif.bluetoothchat.data.model.BluetoothScanner.ScanningListener
+import com.glodanif.bluetoothchat.utils.getBluetoothManager
 import java.lang.Exception
 
 class BluetoothScannerImpl(val context: Context) : BluetoothScanner {
@@ -17,9 +19,9 @@ class BluetoothScannerImpl(val context: Context) : BluetoothScanner {
 
     private var isDiscovering: Boolean = false
 
-    private val handler: Handler = Handler()
+    private val handler: Handler = Handler(Looper.getMainLooper())
 
-    private val adapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
+    private val adapter: BluetoothAdapter? = context.getBluetoothManager().adapter
 
     private val foundDevices = HashMap<String, BluetoothDevice>()
 
@@ -32,7 +34,7 @@ class BluetoothScannerImpl(val context: Context) : BluetoothScanner {
 
             if (BluetoothDevice.ACTION_FOUND == intent.action) {
                 val device = intent
-                        .getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                    .getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
                 foundDevices[device!!.address] = device
                 listener?.onDeviceFind(device)
             }
@@ -44,7 +46,10 @@ class BluetoothScannerImpl(val context: Context) : BluetoothScanner {
 
         override fun onReceive(context: Context, intent: Intent) {
 
-            val scanMode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, BluetoothAdapter.SCAN_MODE_NONE)
+            val scanMode = intent.getIntExtra(
+                BluetoothAdapter.EXTRA_SCAN_MODE,
+                BluetoothAdapter.SCAN_MODE_NONE
+            )
 
             if (scanMode == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
                 listener?.onDiscoverableStart()
@@ -74,11 +79,11 @@ class BluetoothScannerImpl(val context: Context) : BluetoothScanner {
 
     @SuppressLint("MissingPermission")
     override fun getMyDeviceName() =
-            try {
-                adapter?.name ?: "?"
-            } catch (e: Exception) {
-                "?"
-            }
+        try {
+            adapter?.name ?: "?"
+        } catch (e: Exception) {
+            "?"
+        }
 
     @SuppressLint("MissingPermission")
     override fun scanForDevices(seconds: Int) {
@@ -104,7 +109,7 @@ class BluetoothScannerImpl(val context: Context) : BluetoothScanner {
 
     override fun getDeviceByAddress(address: String): BluetoothDevice? {
         val pairedDevice = getBondedDevices()
-                .filter { it.address.equals(address, ignoreCase = true) }
+            .filter { it.address.equals(address, ignoreCase = true) }
         return if (!pairedDevice.isEmpty()) pairedDevice.first() else foundDevices[address]
     }
 
@@ -114,7 +119,7 @@ class BluetoothScannerImpl(val context: Context) : BluetoothScanner {
 
     @SuppressLint("MissingPermission")
     override fun isDiscoverable() =
-            adapter?.scanMode == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE
+        adapter?.scanMode == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE
 
     override fun isDiscovering() = isDiscovering
 

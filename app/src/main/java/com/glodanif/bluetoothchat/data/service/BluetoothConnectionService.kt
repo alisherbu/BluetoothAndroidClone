@@ -58,17 +58,10 @@ class BluetoothConnectionService : Service(), ConnectionSubject {
                     }
                     val conversationsIntent = Intent(context, ConversationsActivity::class.java)
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        TaskStackBuilder.create(context)
-                                .addNextIntentWithParentStack(conversationsIntent)
-                                .addNextIntentWithParentStack(chatIntent)
-                                .startActivities()
-                    } else {
-                        val intents = arrayOf(conversationsIntent, chatIntent)
-                        val code = System.currentTimeMillis() / 1000
-                        PendingIntent.getActivities(context, code.toInt(), intents, PendingIntent.FLAG_ONE_SHOT)
-                                .send()
-                    }
+                    TaskStackBuilder.create(context)
+                            .addNextIntentWithParentStack(conversationsIntent)
+                            .addNextIntentWithParentStack(chatIntent)
+                            .startActivities()
 
                 } else {
                     controller.rejectConnection()
@@ -295,9 +288,7 @@ class BluetoothConnectionService : Service(), ConnectionSubject {
         super.onDestroy()
 
         unregisterReceiver(connectionActionReceiver)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            unregisterReceiver(replyActionReceiver)
-        }
+        unregisterReceiver(replyActionReceiver)
 
         isRunning = false
         controller.stop()

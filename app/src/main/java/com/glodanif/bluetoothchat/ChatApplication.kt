@@ -20,10 +20,12 @@ import com.glodanif.bluetoothchat.ui.activity.ConversationsActivity
 import com.glodanif.bluetoothchat.ui.util.StartStopActivityLifecycleCallbacks
 import com.glodanif.bluetoothchat.ui.util.ThemeHolder
 import com.kobakei.ratethisapp.RateThisApp
-import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.android.inject
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidFileProperties
+import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
-import org.koin.core.scope.Scope
+import org.koin.core.logger.Level
 
 class ChatApplication : Application(), LifecycleObserver, ThemeHolder {
 
@@ -37,13 +39,14 @@ class ChatApplication : Application(), LifecycleObserver, ThemeHolder {
     private val profileManager: ProfileManager by inject()
     private val preferences: UserPreferences by inject()
 
-    private lateinit var localeSession: Scope
-
     override fun onCreate() {
         super.onCreate()
 
 
         startKoin {
+            androidLogger(Level.ERROR)
+            androidContext(applicationContext)
+            androidFileProperties()
             modules(
                 listOf(
                     applicationModule,
@@ -122,7 +125,7 @@ class ChatApplication : Application(), LifecycleObserver, ThemeHolder {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     internal fun prepareConnection() {
-        if (!profileManager.getUserName().isEmpty()) {
+        if (profileManager.getUserName().isNotEmpty()) {
             connector.prepare()
         }
     }

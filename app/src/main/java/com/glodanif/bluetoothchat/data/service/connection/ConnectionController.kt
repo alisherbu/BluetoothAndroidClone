@@ -1,5 +1,6 @@
 package com.glodanif.bluetoothchat.data.service.connection
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothServerSocket
@@ -617,6 +618,7 @@ class ConnectionController(private val application: ChatApplication,
         return Size(options.outWidth, options.outHeight)
     }
 
+    @SuppressLint("MissingPermission")
     private inner class AcceptJob : Thread() {
 
         private var serverSocket: BluetoothServerSocket? = null
